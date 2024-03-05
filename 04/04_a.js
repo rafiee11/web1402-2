@@ -175,3 +175,18 @@ if(process.argv[2]=="creatfile"){
  }
  });
 }
+
+
+
+
+if(process.argv[2]=="recordfile"){
+    fs.readFile('database.json','utf8',function readcallback(err,filedata){
+        if(err){
+            console.log(err);
+        }
+        else {
+            filedata=json.parse(filedata);
+            console.log(filedata.record[process.argv[3]]);
+        }
+    }
+}
