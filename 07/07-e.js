@@ -6,8 +6,7 @@
 
 //node .\04-a.js read x.txt
 //noed .\04-a.js createRecord nasser torabzade nasser@x.com
-
-
+//node .\04-a.js readRecord 2
 
 //noed .\05-a.js readRecord 102
 //noed .\05-a.js deleteRecord 102
@@ -19,19 +18,11 @@
 
 
 let fs = require('fs');
-let redis = require('redis');
-
 let command = process.argv[2];
 let name = process.argv[3];
 let arg4 = process.argv[4];
 
-function send(txt,response){
-    response.writeHead(200, { 'Content-Type': 'text/plain' });
-    response.write(txt);
-    response.end();
-}
-
-function unlinkCallback(err,response) {
+function unlinkCallback(err) {
     if(err){
         if(err.code === 'EPERM'){
             fs.rmdir(name, rmdirCallback); 
@@ -41,17 +32,16 @@ function unlinkCallback(err,response) {
         }
     }
     else{
-        send("delete file",response)
-
+        console.log("unlink  successfull.")
     }
 }
 
-function rmdirCallback(err,response){
+function rmdirCallback(err){
     if(err){
         console.log('ERR: ', err);
     }
     else{
-        send("delete remd",response)
+        console.log('rmdir successfull')
     }
 }
 
@@ -63,8 +53,7 @@ function fsCallback(err){
         read:  'readFile successfull.',
         createRecord:  'createRecord done successfully.',
     };
-    console.log(8)
-            
+             
     if(err){
         console.log('ERR: ', err);
     }
@@ -84,12 +73,6 @@ function readFileCallback(err, data){
 }
 
 function createRecordController(requestParams, response){
-
-    // let data = {
-    //     name: process.argv[3],
-    //     family: process.argv[4],
-    //     email: process.argv[5]
-    // }
 
     fs.readFile('database.json', {encoding: 'utf8'}, function(err, fileData){
         if(err){
@@ -116,14 +99,12 @@ function createRecordController(requestParams, response){
                     response.write('createRecord success');
                     response.end();
                 }
-                
             });
-            
         }
     });
 }
 
-function readRecordController(){      
+function readRecordController(requestParams, response){      
     function getArrayIndex(array, id){
         for(let i=0; i<array.length; i++){
             if(array[i].id == id ){
@@ -137,23 +118,29 @@ function readRecordController(){
             console.log('ERR: ', err);
         }
         else { 
-           let s= fileData = JSON.parse(fileData);
-            console.log('createRecord success');
-                   
-            if(fileData.records[getArrayIndex(fileData.records, name)] === undefined){
-                console.log("Record not found.")
+            fileData = JSON.parse(fileData);
+
+            if(fileData.records[getArrayIndex(fileData.records, requestParams.name)] === undefined){
+                console.log("Record not found.");
+
+                response.writeHead(200, { 'Content-Type': 'text/plain' });
+                response.write("Record not found.");
+                response.end();
             }
             else{
-                console.log('record: ', fileData.records[getArrayIndex(fileData.records, name)]);   
+                console.log('record: ', fileData.records[getArrayIndex(fileData.records, requestParams.name)]);   
+
+                let data = JSON.stringify(fileData.records[getArrayIndex(fileData.records, requestParams.name)]);
+                
+                response.writeHead(200, { 'Content-Type': 'text/plain' });
+                response.write('record: ' + data);
+                response.end();
             }                             
         }
     });
 }
 
-function deleteRecordController(request,response){
-
-    name = request.url.split('/')[2];
-    void3 = request.url.split('/')[3];
+function deleteRecordController(request, response){
     function getArrayIndex(array, id){
         for(let i=0; i<array.length; i++){
             if(array[i].id == id ){
@@ -161,30 +148,45 @@ function deleteRecordController(request,response){
             }
         }
     }
+
+    let name = request.url.split('/')[2];
     
     fs.readFile('database.json', {encoding: 'utf8'}, function(err, fileData){
         if(err){
-            response.write('ERR: ', err);
-            response.end();
+            console.log('ERR: ', err);
         }
         else { 
+            let name = request.url.split('/')[2];
+    
             fileData = JSON.parse(fileData);
             // let deleteIndex = getArrayIndex(fileData.records, name);
             // fileData.records.splice(deleteIndex, 1);     
 
-            console.log('getArrayIndex', getArrayIndex(fileData.records, name))
-            let x = fileData.records.splice(getArrayIndex(fileData.records, name), 1); 
+            let index = getArrayIndex(fileData.records, name);
+            console.log('getArrayIndex', index)
+            if(index){
+                let x = fileData.records.splice(getArrayIndex(fileData.records, name), 1); 
+                console.log('deleted items', x);
+            }
             console.log('fileData.records.splice', fileData.records);
-            console.log('deleted items', x)
+
             
             fileData = JSON.stringify(fileData);
-            fs.writeFile('database.json', fileData, fsCallback);
-            response.write("Delete Success");
-            response.end();
+            fs.writeFile('database.json', fileData, function(error){
+                if(error){
+                    response.writeHead(200, { 'Content-Type': 'text/plain' });
+                    response.write('error: ' + error);
+                    response.end();
+                }
+                else{
+                    response.writeHead(200, { 'Content-Type': 'text/plain' });
+                    response.write('delete record Successfull');
+                    response.end();
+                }
+            });
         }
     });
 }
-
 async function redisCreateController(){
     const client = await redis.createClient({
         url: 'redis://127.0.0.1:6379'
@@ -207,6 +209,12 @@ function redisDeleteController(){
 
 }
 
+function send(response, text){
+    response.writeHead(200, { 'Content-Type': 'text/html' });
+    response.write(text);
+    response.end();
+}
+
 let commands = { 
     create: function(){
         fs.writeFile(name, arg4, fsCallback);
@@ -214,15 +222,48 @@ let commands = {
     append: function(){
         fs.appendFile(name, arg4, fsCallback); 
     },
-    delete: function(request){
-        name = request.url.split('/')[2];
-        fs.unlink(name, unlinkCallback);
+    delete: function(request, response){
+        let name = request.url.split('/')[2];
+        fs.unlink(name, function(error){
+            if(error){
+                if(error.code === 'EPERM'){
+                    fs.rmdir(name, function(error){
+                        if(error){
+                            console.log('ERR: ', error);
+                            send(response, error);
+                        }
+                        else{
+                            let message = 'delete successfull'
+                            console.log(message);
+                            send(response, message);
+                        }
+                    }); 
+                }
+                else{
+                    console.log('ERR: ', error);
+                    send(response, error);
+                }
+            }
+            else{
+                let message = 'delete successfull'
+                console.log(message);
+                send(response, message);
+            }
+        });
     },
     copy: function(){
         fs.copyFile(name, arg4, fsCallback);
     },
-    read: function(){
-        fs.readFile(name, {encoding: 'utf8'}, readFileCallback);
+    read: function(request, response){
+        let name = request.url.split('/')[2];
+        fs.readFile(name, {encoding: 'utf8'}, function(err, fileData){
+            if(err){
+
+            }
+            else{
+                send(response, fileData);
+            }
+        });
     },
 
     createRecord: createRecordController,
@@ -233,53 +274,20 @@ let commands = {
     redisDelete: redisDeleteController
 }   
 
-//node .\04-a.js readRecord 2
-
-//commands[command]();
-
-// let x = ['AAAA', 'BBBB'];
-
-// x.push(1);
-// x.push(2);
-// x.push("kjhkljhkj;lh");
-// x.push({x:1, y:3});
-// x.push(['A', 'B', 'C']);
-
-// console.log(x);
-
-let http = require('http');
-let port = 80;
-
-
-// let server = http.createServer(function(request, response){
-
-//     console.log('request recieved');
-//     console.log('request.method', request.method);
-//     console.log('request.url', request.url);
-
-//     if(request.url === '/redisCreate'){
-//         name='TEST NAME';
-//         arg4='TEST VALUE'
-//         redisCreateController();
-//     }
-
-//     response.writeHead(200, { 'Content-Type': 'text/plain' });
-//     response.write("this is a test!");
-//     response.end();
-// });
-
-let server = http.createServer(requestHandler);
-
 function requestHandler(request, response){
+
     console.log('request.method', request.method);
     console.log('request.url', request.url);
 
     command = request.url.split('/')[1];
-    // let requestParams = {
-    //     command:command,
-    //     name:name,
-    //     arg4:arg4
-    // }
+    name = request.url.split('/')[2];
+    arg4 = request.url.split('/')[3];
+
+    let requestParams = {
+        command:command,
+        name:name,
+        arg4:arg4
+    }
     
     try {
         commands[command](request, response);
@@ -287,11 +295,10 @@ function requestHandler(request, response){
     catch(e){
 
     }
-
-    // response.writeHead(200, { 'Content-Type': 'text/plain' });
-    // response.write("this is a test!");
-    // response.end();
 }
 
+let http = require('http');
+let port = 80;
+let server = http.createServer(requestHandler);
 server.listen(port);
 console.log("Server is running on port:" + port)
