@@ -1,0 +1,146 @@
+<html>
+    <head>
+        <title>salam</title>
+        <style>
+            #div1 {color:green}
+            #div2 {color:blue}
+            #div3 {color:red}
+            p {font-weight: bold;}
+            .graybox{
+                background-color: lightgray;
+            }
+            .bluebox{
+                background-color: lightskyblue;
+                border: 5px solid blue;
+                margin: 5px;
+                text-align: center;
+            }
+
+            article{
+                border: 1px red solid;
+                width:150px;
+                height:150px;
+                margin:5px;
+                padding:5px;
+                text-align: center;
+            }
+            #main{
+                display: flex;
+                flex-wrap: wrap;
+            }
+            header{
+                font-size: 24px;
+                padding:20px;
+                background-color: lightgreen;
+            }
+            .bogborder{
+                border: 5px solid red;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <header>
+                salam
+            </header>
+        </section>
+        <section id="main">
+            <article id="a1">
+                click here!
+            </article>
+            <article id="a2">
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article id="a3">
+                <input id="i1" type="text">
+                <input id="i2" type="button" value="console.log">
+            </article>
+            <article id="a4">
+                <input id="i3" type="text">
+                <input id="i4" type="button" value="change bg">
+            </article>
+            <article id="a5">
+                <input id="i5" type="text">
+                <input id="i6" type="button" value="change all bg">
+            </article>
+            <article id="a6">
+                <input id="i7" type="button" value="add child box">
+            </article>
+            <article id="a7">
+                <input id="i8" type="button" value="add innerHtml box">
+                <input id="i9" type="button" value="add class bigborder">
+            </article>
+        </section>
+        <section>
+            footer Lorem ipsum dolor sit amet consectetur.
+        </section>
+        <script>
+            document
+                .getElementById("a1")
+                .addEventListener("click", function(){
+                    document
+                        .getElementById("a2")
+                        .style.backgroundColor = "lightblue";
+                });
+
+            document
+                .getElementById("i2")
+                .addEventListener("click", function(){
+                    console.log(
+                        "Value is: ", 
+                        document.getElementById("i1").value
+                    )
+                });
+
+            document
+                .getElementById("i4")
+                .addEventListener("click", function(){
+                    document.getElementById('a4').style.backgroundColor =
+                        document.getElementById('i3').value;
+                });
+                
+            // document
+            //     .getElementById("i6")
+            //     .addEventListener("click", function(){
+            //         for(let i=1; i<7; i++){
+            //             document.getElementById('a' + i).style.backgroundColor =
+            //             document.getElementById('i5').value;
+            //         }                    
+            //     });
+
+            function $(id){
+                return document.getElementById(id)
+            }
+
+            $("i6")
+                .addEventListener("click", function(){
+                    for(let i=1; i<9; i++){
+                        $('a' + i).style.backgroundColor =
+                        $('i5').value;
+                    }                    
+                });
+
+            document
+                .getElementById("i7")
+                .addEventListener("click", function(){
+                    let elem = document.createElement("article");
+                    elem.setAttribute("id", "a8");
+                    document.getElementById("main").appendChild(elem);
+                });
+
+            document
+                .getElementById("i8")
+                .addEventListener("click", function(){
+                    let html = document.getElementById("main").innerHTML;
+                    document.getElementById("main").innerHTML = html + `<article id="a8"></article>`;
+                });
+
+            document
+                .getElementById("i9")
+                .addEventListener("click", function(){
+                    document.getElementById('a7').classList.add("bigborder");
+                });
+
+        </script>
+    </body>
+</html>

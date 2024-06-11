@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <title>salam</title>
+        <style>
+            #div1 {color:green}
+            #div2 {color:blue}
+            #div3 {color:red}
+            p {font-weight: bold;}
+            .graybox{background-color: lightgray;}
+            .bluebox{
+                background-color: lightskyblue;
+                border: 5px solid blue;
+                margin: 5px;
+                text-align: center;
+            }
+
+            article{
+                border: 1px red solid;
+                width:200px;
+                height:200px;
+                text-align: center;
+            }
+            #main{
+                display: flex;
+                flex-wrap: wrap;
+            }
+            header{
+                font-size: 24px;
+                background-color: lightcyan;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <header>
+                salam
+            </header>
+        </section>
+        <section id="main">
+            <article id="a1">
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article>
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article>
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article>
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article>
+                Lorem ipsum dolor sit amet
+            </article>
+            <article>
+                Lorem ipsum dolor sit amet.
+            </article>
+        </section>
+        <section>
+            footer Lorem ipsum dolor sit amet consectetur.
+        </section>
+        <script>
+            console.log('hello world');
+            document
+                .getElementById("a1")
+                .addEventListener("click", function(){
+                    console.log('jhgbjhbn')
+                })
+        </script>
+    </body>
+</html>

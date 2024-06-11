@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <title>salam</title>
+        <style>
+            #div1 {color:green}
+            #div2 {color:blue}
+            #div3 {color:red}
+            p {font-weight: bold;}
+            .graybox{background-color: lightgray;}
+            .bluebox{
+                background-color: lightskyblue;
+                border: 5px solid blue;
+                margin: 5px;
+                text-align: center;
+            }
+
+            article{
+                border: 1px red solid;
+                width:200px;
+                height:200px;
+                text-align: center;
+            }
+            #main{
+                display: flex;
+                flex-wrap: wrap;
+            }
+            header{
+                font-size: 24px;
+                background-color: lightcyan;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <header>
+                salam
+            </header>
+        </section>
+        <section id="main">
+            <article id="a1">
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article id="a2">
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article id="a3">
+                <input id="i1" type="text">
+                <input id="i2" type="button" value="sadsad">
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article id="a4">
+                Lorem ipsum dolor sit amet.
+            </article>
+            <article id="a5">
+                Lorem ipsum dolor sit amet
+            </article>
+            <article id="a6">
+                Lorem ipsum dolor sit amet.
+            </article>
+        </section>
+        <section>
+            footer Lorem ipsum dolor sit amet consectetur.
+        </section>
+        <script>
+            document
+                .getElementById("a1")
+                .addEventListener("click", function(){
+                    document
+                        .getElementById("a2")
+                        .style.backgroundColor = "gray";
+                });
+
+            document
+                .getElementById("i2")
+                .addEventListener("click", function(){
+                    console.log(
+                        "Value is: ", 
+                        document.getElementById("i1").value
+                    )
+                });
+        </script>
+    </body>
+</html>
